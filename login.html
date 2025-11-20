@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlashMart | Login & Sign Up</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                FlashMart
+            </a>
+            <div class="search-bar">
+                <input type="text" class="search-input" id="search-input" placeholder="Search for products...">
+                <button class="search-btn" onclick="handleSearch()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="header-actions">
+                <span id="user-info">Guest</span>
+                <a href="login.html" class="btn btn-secondary" id="login-btn" aria-current="page">Login</a>
+                <button class="btn btn-secondary" id="logout-btn" onclick="handleLogout()" style="display: none;">Logout</button>
+                <a href="cart.html" class="btn btn-primary cart-btn">
+                    Cart
+                    <span class="cart-badge" id="cart-badge">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="nav-menu">
+        <div class="nav-container">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="products.html?category=groceries" class="nav-link">Groceries</a>
+            <a href="products.html?category=snacks" class="nav-link">Snacks</a>
+            <a href="products.html?category=personal-care" class="nav-link">Personal Care</a>
+            <a href="products.html?category=electronics" class="nav-link">Electronics</a>
+            <a href="products.html?category=stationery" class="nav-link">Stationery</a>
+            <a href="products.html?category=home-essentials" class="nav-link">Home Essentials</a>
+            <a href="products.html" class="nav-link">All Products</a>
+            <a href="account.html" class="nav-link">Account</a>
+        </div>
+    </nav>
+
+    <section class="auth-page">
+        <div class="auth-wrapper">
+            <div class="auth-left">
+                <h1>Login or create an account</h1>
+                <p>Track orders, use monthly billing, manage addresses, and enjoy a faster checkout experience.</p>
+                <ul class="auth-benefits">
+                    <li>Save carts and wishlists to your profile</li>
+                    <li>View detailed order history & invoices</li>
+                    <li>Unlock monthly billing and pay later</li>
+                    <li>Get personalised recommendations</li>
+                </ul>
+                <div class="auth-stats">
+                    <div>
+                        <span class="auth-stat-value">5K+</span>
+                        <span class="auth-stat-label">Active shoppers</span>
+                    </div>
+                    <div>
+                        <span class="auth-stat-value">250+</span>
+                        <span class="auth-stat-label">Orders / day</span>
+                    </div>
+                </div>
+            </div>
+            <div class="auth-card">
+                <div class="auth-tabs" role="tablist">
+                    <button class="auth-tab active" data-tab="login" role="tab" aria-selected="true">Login</button>
+                    <button class="auth-tab" data-tab="register" role="tab" aria-selected="false">Create Account</button>
+                </div>
+                <div class="auth-forms">
+                    <form id="login-form" class="auth-form active" autocomplete="on">
+                        <div class="form-field">
+                            <label for="login-email">Email Address</label>
+                            <input type="email" id="login-email" placeholder="you@example.com" required>
+                        </div>
+                        <div class="form-field password-field">
+                            <label for="login-password">Password</label>
+                            <input type="password" id="login-password" placeholder="Enter password" required minlength="6">
+                            <button type="button" class="toggle-password" aria-label="Toggle password visibility"></button>
+                        </div>
+                        <div class="form-actions">
+                            <label class="remember-me">
+                                <input type="checkbox" id="remember-me">
+                                Remember me
+                            </label>
+                            <button type="button" class="link-btn" id="use-demo-btn">Use demo account</button>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Login to FlashMart</button>
+                        <p class="form-note">Experiencing issues? Drop us a note and we’ll help restore access.</p>
+                    </form>
+
+                    <form id="register-form" class="auth-form" autocomplete="on">
+                        <div class="form-field">
+                            <label for="register-name">Full Name</label>
+                            <input type="text" id="register-name" placeholder="Enter your full name" required minlength="2">
+                        </div>
+                        <div class="form-field">
+                            <label for="register-email">Email Address</label>
+                            <input type="email" id="register-email" placeholder="you@example.com" required>
+                        </div>
+                        <div class="form-field password-field">
+                            <label for="register-password">Password</label>
+                            <input type="password" id="register-password" placeholder="Create a strong password" required minlength="6">
+                            <button type="button" class="toggle-password" aria-label="Toggle password visibility"></button>
+                        </div>
+                        <div class="form-field password-field">
+                            <label for="register-confirm">Confirm Password</label>
+                            <input type="password" id="register-confirm" placeholder="Re-enter password" required minlength="6">
+                            <button type="button" class="toggle-password" aria-label="Toggle password visibility"></button>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-full">Create account</button>
+                        <p class="form-note">By continuing you agree to FlashMart's Terms & Privacy Policy.</p>
+                    </form>
+                </div>
+                <div class="auth-feedback" id="auth-feedback" role="alert" aria-live="polite"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="data/products.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        const tabs = document.querySelectorAll('.auth-tab');
+        const forms = document.querySelectorAll('.auth-form');
+        const feedback = document.getElementById('auth-feedback');
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                const target = tab.dataset.tab;
+                tabs.forEach(btn => btn.classList.toggle('active', btn === tab));
+                tabs.forEach(btn => btn.setAttribute('aria-selected', btn === tab));
+                forms.forEach(form => form.classList.toggle('active', form.id === `${target}-form`));
+                feedback.textContent = '';
+                feedback.className = 'auth-feedback';
+            });
+        });
+
+        document.querySelectorAll('.toggle-password').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const input = btn.parentElement.querySelector('input');
+                const type = input.type === 'password' ? 'text' : 'password';
+                input.type = type;
+                btn.classList.toggle('visible', type === 'text');
+            });
+        });
+
+        const showFeedback = (message, type = 'info') => {
+            feedback.textContent = message;
+            feedback.className = `auth-feedback ${type}`;
+        };
+
+        const redirectAfterAuth = () => {
+            FlashMartStorage.updateCartBadge();
+            FlashMartStorage.updateUserInfo();
+            setTimeout(() => {
+                window.location.href = 'account.html';
+            }, 900);
+        };
+
+        document.getElementById('login-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const email = document.getElementById('login-email').value.trim().toLowerCase();
+            const password = document.getElementById('login-password').value.trim();
+            if (!email || !password) {
+                showFeedback('Please enter both email and password.', 'error');
+                return;
+            }
+            const result = FlashMartStorage.loginUser(email, password);
+            if (result.success) {
+                FlashMartStorage.showToast('Welcome back!', 'success');
+                showFeedback('Login successful. Redirecting…', 'success');
+                redirectAfterAuth();
+            } else {
+                showFeedback(result.message || 'Invalid credentials. Please try again.', 'error');
+            }
+        });
+
+        document.getElementById('register-form').addEventListener('submit', (event) => {
+            event.preventDefault();
+            const name = document.getElementById('register-name').value.trim();
+            const email = document.getElementById('register-email').value.trim().toLowerCase();
+            const password = document.getElementById('register-password').value.trim();
+            const confirmPassword = document.getElementById('register-confirm').value.trim();
+
+            if (password !== confirmPassword) {
+                showFeedback('Passwords do not match.', 'error');
+                return;
+            }
+            if (password.length < 6) {
+                showFeedback('Password should be at least 6 characters.', 'error');
+                return;
+            }
+            const result = FlashMartStorage.registerUser(email, password, name);
+            if (result.success) {
+                FlashMartStorage.setCurrentUser(result.user);
+                FlashMartStorage.showToast('Account created! Welcome aboard.', 'success');
+                showFeedback('Account created successfully. Redirecting…', 'success');
+                redirectAfterAuth();
+            } else {
+                showFeedback(result.message || 'Unable to create account. Try a different email.', 'error');
+            }
+        });
+
+        document.getElementById('use-demo-btn').addEventListener('click', () => {
+            document.getElementById('login-email').value = 'test@flashmart.com';
+            document.getElementById('login-password').value = 'Password123';
+            showFeedback('Demo credentials filled. Click Login to continue.', 'info');
+        });
+
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.trim();
+            if (query) {
+                window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+
+        function handleLogout() {
+            FlashMartStorage.logoutUser();
+            FlashMartStorage.updateUserInfo();
+            FlashMartStorage.updateCartBadge();
+            window.location.href = 'login.html';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            FlashMartStorage.updateCartBadge();
+            FlashMartStorage.updateUserInfo();
+        });
+    </script>
+</body>
+</html>
+

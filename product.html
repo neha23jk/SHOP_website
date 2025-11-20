@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details - FlashMart</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                FlashMart
+            </a>
+            <div class="search-bar">
+                <input type="text" class="search-input" id="search-input" placeholder="Search for products...">
+                <button class="search-btn" onclick="handleSearch()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="header-actions">
+                <span id="user-info">Guest</span>
+                <a href="login.html" class="btn btn-secondary" id="login-btn">Login</a>
+                <button class="btn btn-secondary" id="logout-btn" onclick="handleLogout()" style="display: none;">Logout</button>
+                <a href="cart.html" class="btn btn-primary cart-btn">
+                    Cart
+                    <span class="cart-badge" id="cart-badge">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+        <div class="nav-container">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="products.html?category=groceries" class="nav-link">Groceries</a>
+            <a href="products.html?category=snacks" class="nav-link">Snacks</a>
+            <a href="products.html?category=personal-care" class="nav-link">Personal Care</a>
+            <a href="products.html?category=electronics" class="nav-link">Electronics</a>
+            <a href="products.html?category=stationery" class="nav-link">Stationery</a>
+            <a href="products.html?category=home-essentials" class="nav-link">Home Essentials</a>
+            <a href="products.html" class="nav-link">All Products</a>
+            <a href="account.html" class="nav-link">Account</a>
+        </div>
+    </nav>
+
+    <!-- Product Detail Section -->
+    <section class="product-detail" id="product-detail">
+        <!-- Product will be loaded here -->
+    </section>
+
+    <!-- Scripts -->
+    <script src="data/products.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let currentProduct = null;
+        let quantity = 1;
+
+        // Handle search
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.trim();
+            if (query) {
+                window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        // Search on Enter key
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+
+        // Handle logout
+        function handleLogout() {
+            FlashMartStorage.logoutUser();
+            FlashMartStorage.updateUserInfo();
+            FlashMartStorage.updateCartBadge();
+            window.location.href = 'index.html';
+        }
+
+        // Get product ID from URL
+        function getProductId() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // Load product details
+        function loadProduct() {
+            const productId = getProductId();
+            if (!productId) {
+                document.getElementById('product-detail').innerHTML = '<div class="empty-state"><div class="empty-state-text">Product not found</div></div>';
+                return;
+            }
+
+            currentProduct = FlashMartStorage.getProductById(productId);
+            if (!currentProduct) {
+                document.getElementById('product-detail').innerHTML = '<div class="empty-state"><div class="empty-state-text">Product not found</div></div>';
+                return;
+            }
+
+            renderProduct();
+        }
+
+        // Render product
+        function renderProduct() {
+            const container = document.getElementById('product-detail');
+            quantity = 1;
+            const galleryImages = buildGalleryImages(currentProduct);
+            const thumbnailsHTML = galleryImages.map((image, index) => `
+                <button class="product-thumbnail ${index === 0 ? 'active' : ''}" data-index="${index}" type="button" aria-label="Show product angle ${index + 1}">
+                    <img src="${image}" alt="${currentProduct.name} view ${index + 1}">
+                </button>
+            `).join('');
+
+            container.innerHTML = `
+                <div class="product-detail-media">
+                    <div class="product-main-image">
+                        <img id="product-main-image" src="${galleryImages[0]}" alt="${currentProduct.name}" data-active-index="0" data-current-src="${galleryImages[0]}">
+                    </div>
+                    <div class="product-thumbnails">
+                        ${thumbnailsHTML}
+                    </div>
+                </div>
+                <div class="product-detail-info">
+                    <h1 class="product-detail-name">${currentProduct.name}</h1>
+                    <div class="product-detail-price">${FlashMartStorage.formatPrice(currentProduct.price)}</div>
+                    <div class="product-detail-rating">
+                        <span class="star">★</span>
+                        <span>${currentProduct.rating} (${Math.floor(Math.random() * 100 + 50)} reviews)</span>
+                    </div>
+                    <div class="product-stock">In Stock (${currentProduct.stock} available)</div>
+                    <p class="product-detail-description">${currentProduct.description}</p>
+                    <div class="quantity-selector">
+                        <label>Quantity:</label>
+                        <button class="quantity-btn" onclick="decreaseQuantity()">-</button>
+                        <input type="number" class="quantity-input" id="quantity-input" value="1" min="1" max="${currentProduct.stock}" onchange="updateQuantity()">
+                        <button class="quantity-btn" onclick="increaseQuantity()">+</button>
+                    </div>
+                    <div class="product-actions product-actions-detail">
+                        <button class="btn btn-add-basket" onclick="addToCart(event)">Add to Cart</button>
+                        <button class="btn-buy-now" onclick="buyNow()">Buy Now</button>
+                    </div>
+                </div>
+            `;
+
+            attachGalleryInteractions(galleryImages);
+        }
+
+        function buildGalleryImages(product) {
+            if (product && Array.isArray(product.images) && product.images.length > 0) {
+                return product.images;
+            }
+            return ['assets/Home Screen Scroller/1.png'];
+        }
+
+        function attachGalleryInteractions(images) {
+            const mainImage = document.getElementById('product-main-image');
+            if (!mainImage) return;
+            const thumbnails = document.querySelectorAll('.product-thumbnail');
+
+            requestAnimationFrame(() => {
+                mainImage.classList.add('bb-image-enter');
+                setTimeout(() => mainImage.classList.remove('bb-image-enter'), 400);
+            });
+
+            thumbnails.forEach((thumb) => {
+                thumb.addEventListener('click', () => {
+                    const index = Number(thumb.dataset.index);
+                    const targetSrc = images[index];
+                    if (!targetSrc) return;
+
+                    const currentIndex = Number(mainImage.dataset.activeIndex || 0);
+                    if (currentIndex === index) {
+                        pulseMainImage(mainImage);
+                        return;
+                    }
+
+                    thumbnails.forEach(btn => btn.classList.remove('active'));
+                    thumb.classList.add('active');
+                    switchMainImage(mainImage, targetSrc, index);
+                });
+            });
+        }
+
+        function switchMainImage(element, newSrc, nextIndex) {
+            if (element.dataset.currentSrc === newSrc) {
+                pulseMainImage(element);
+                return;
+            }
+            element.dataset.activeIndex = nextIndex;
+            element.dataset.currentSrc = newSrc;
+            element.classList.remove('bb-image-enter');
+            element.classList.add('bb-image-exit');
+
+            const handleLoad = () => {
+                element.classList.remove('bb-image-exit');
+                element.classList.add('bb-image-enter');
+                setTimeout(() => element.classList.remove('bb-image-enter'), 400);
+                element.removeEventListener('load', handleLoad);
+            };
+
+            element.addEventListener('load', handleLoad);
+
+            setTimeout(() => {
+                element.src = newSrc;
+            }, 140);
+        }
+
+        function pulseMainImage(element) {
+            element.classList.remove('bb-image-enter');
+            element.classList.add('bb-image-exit');
+            setTimeout(() => {
+                element.classList.remove('bb-image-exit');
+                element.classList.add('bb-image-enter');
+                setTimeout(() => element.classList.remove('bb-image-enter'), 350);
+            }, 140);
+        }
+
+        // Quantity controls
+        function decreaseQuantity() {
+            if (quantity > 1) {
+                quantity--;
+                document.getElementById('quantity-input').value = quantity;
+            }
+        }
+
+        function increaseQuantity() {
+            if (quantity < currentProduct.stock) {
+                quantity++;
+                document.getElementById('quantity-input').value = quantity;
+            } else {
+                FlashMartStorage.showToast('Maximum stock reached', 'error');
+            }
+        }
+
+        function updateQuantity() {
+            const input = document.getElementById('quantity-input');
+            const value = parseInt(input.value) || 1;
+            if (value < 1) {
+                quantity = 1;
+            } else if (value > currentProduct.stock) {
+                quantity = currentProduct.stock;
+                FlashMartStorage.showToast('Maximum stock reached', 'error');
+            } else {
+                quantity = value;
+            }
+            input.value = quantity;
+        }
+
+        // Add to cart
+        function addToCart(event) {
+            const button = event ? event.target : null;
+            const result = FlashMartStorage.addToCart(currentProduct.id, quantity);
+            if (result.success) {
+                if (button) {
+                    FlashMartStorage.animateAddToCart(currentProduct.id, button);
+                }
+                FlashMartStorage.showToast(`${quantity} item(s) added to cart`, 'success');
+                FlashMartStorage.updateCartBadge();
+            } else {
+                FlashMartStorage.showToast(result.message, 'error');
+            }
+        }
+
+        // Buy now
+        function buyNow() {
+            // Validate quantity
+            if (quantity > currentProduct.stock) {
+                FlashMartStorage.showToast('Insufficient stock', 'error');
+                return;
+            }
+            if (quantity < 1) {
+                FlashMartStorage.showToast('Please select a valid quantity', 'error');
+                return;
+            }
+            // Redirect to checkout with product and quantity
+            window.location.href = `checkout.html?product=${currentProduct.id}&quantity=${quantity}`;
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProduct();
+            FlashMartStorage.updateCartBadge();
+            FlashMartStorage.updateUserInfo();
+        });
+    </script>
+</body>
+</html>
+

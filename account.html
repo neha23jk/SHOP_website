@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Account - FlashMart</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                FlashMart
+            </a>
+            <div class="search-bar">
+                <input type="text" class="search-input" id="search-input" placeholder="Search for products...">
+                <button class="search-btn" onclick="handleSearch()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="header-actions">
+                <span id="user-info">Guest</span>
+                <a href="login.html" class="btn btn-secondary" id="login-btn">Login</a>
+                <button class="btn btn-secondary" id="logout-btn" onclick="handleLogout()" style="display: none;">Logout</button>
+                <a href="cart.html" class="btn btn-primary cart-btn">
+                    Cart
+                    <span class="cart-badge" id="cart-badge">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+        <div class="nav-container">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="products.html?category=groceries" class="nav-link">Groceries</a>
+            <a href="products.html?category=snacks" class="nav-link">Snacks</a>
+            <a href="products.html?category=personal-care" class="nav-link">Personal Care</a>
+            <a href="products.html?category=electronics" class="nav-link">Electronics</a>
+            <a href="products.html?category=stationery" class="nav-link">Stationery</a>
+            <a href="products.html?category=home-essentials" class="nav-link">Home Essentials</a>
+            <a href="products.html" class="nav-link">All Products</a>
+            <a href="account.html" class="nav-link">Account</a>
+        </div>
+    </nav>
+
+    <!-- Account Page -->
+    <div class="account-page">
+        <h2 class="section-title">My Account</h2>
+
+        <!-- User Info Section -->
+        <div class="account-section">
+            <h3 class="account-section-title">User Information</h3>
+            <div id="user-info-section">
+                <!-- User info will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Monthly Billing Section -->
+        <div class="account-section" id="monthly-section">
+            <h3 class="account-section-title">Monthly Billing</h3>
+            <div id="monthly-billing">
+                <!-- Monthly billing will be loaded here -->
+            </div>
+        </div>
+
+        <!-- Order History Section -->
+        <div class="account-section">
+            <h3 class="account-section-title">Order History</h3>
+            <div id="order-history">
+                <!-- Orders will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal" id="payment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Pay Monthly Balance</h3>
+                <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <div id="payment-modal-body">
+                <!-- Payment form will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="data/products.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Handle search
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.trim();
+            if (query) {
+                window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        // Search on Enter key
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+
+        // Handle logout
+        function handleLogout() {
+            FlashMartStorage.logoutUser();
+            FlashMartStorage.updateUserInfo();
+            FlashMartStorage.updateCartBadge();
+            window.location.href = 'index.html';
+        }
+
+        // Load user info
+        function loadUserInfo() {
+            const user = FlashMartStorage.getCurrentUser();
+            const container = document.getElementById('user-info-section');
+
+            if (!user) {
+                container.innerHTML = `
+                    <p>You are not logged in. <a href="login.html">Login</a> to view your account details.</p>
+                `;
+                document.getElementById('monthly-section').style.display = 'none';
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <div><strong>Name:</strong> ${user.name || 'N/A'}</div>
+                    <div><strong>Email:</strong> ${user.email}</div>
+                    <div><strong>Member since:</strong> ${FlashMartStorage.formatDate(user.createdAt)}</div>
+                </div>
+            `;
+        }
+
+        // Load monthly billing
+        function loadMonthlyBilling() {
+            const user = FlashMartStorage.getCurrentUser();
+            const container = document.getElementById('monthly-billing');
+
+            if (!user) {
+                return;
+            }
+
+            const monthly = FlashMartStorage.getMonthlyAccount();
+            const orders = FlashMartStorage.getOrders();
+            const unpaidOrders = orders.filter(o => !o.paid && o.paymentMethod === 'monthly');
+
+            if (monthly.outstanding === 0 && unpaidOrders.length === 0) {
+                container.innerHTML = `
+                    <p style="color: var(--text-light);">No outstanding balance. All payments are up to date.</p>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="monthly-balance">
+                    Outstanding Balance: ${FlashMartStorage.formatPrice(monthly.outstanding)}
+                </div>
+                <div class="order-list">
+                    ${unpaidOrders.map(order => `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <span class="order-id">Order #${order.id}</span>
+                                <span class="order-status pending">Pending Payment</span>
+                            </div>
+                            <div class="order-items">
+                                ${order.items.map(item => `
+                                    <div class="order-item">
+                                        <span>${item.name} (×${item.quantity})</span>
+                                        <span>${FlashMartStorage.formatPrice(item.price * item.quantity)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="order-total">Total: ${FlashMartStorage.formatPrice(order.total)}</div>
+                            <div style="font-size: 14px; color: var(--text-light); margin-top: 5px;">
+                                Date: ${FlashMartStorage.formatDate(order.createdAt)}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="btn btn-primary btn-full" onclick="showPayMonthlyModal()" style="margin-top: 20px;">
+                    Pay Now (${FlashMartStorage.formatPrice(monthly.outstanding)})
+                </button>
+            `;
+        }
+
+        // Show pay monthly modal
+        function showPayMonthlyModal() {
+            const monthly = FlashMartStorage.getMonthlyAccount();
+            const modal = document.getElementById('payment-modal');
+            const modalBody = document.getElementById('payment-modal-body');
+
+            modalBody.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <p>Total Amount: <strong>${FlashMartStorage.formatPrice(monthly.outstanding)}</strong></p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Card Number</label>
+                    <input type="text" class="form-input" placeholder="1234 5678 9012 3456" maxlength="19">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Expiry</label>
+                        <input type="text" class="form-input" placeholder="MM/YY" maxlength="5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CVV</label>
+                        <input type="text" class="form-input" placeholder="123" maxlength="3">
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="payMonthlyBalance()" style="margin-top: 20px;">
+                    Pay ${FlashMartStorage.formatPrice(monthly.outstanding)}
+                </button>
+            `;
+
+            modal.classList.add('show');
+        }
+
+        // Pay monthly balance
+        function payMonthlyBalance() {
+            const result = FlashMartStorage.payMonthlyBalance();
+            
+            if (result.success) {
+                closePaymentModal();
+                FlashMartStorage.showToast(result.message, 'success');
+                loadMonthlyBilling();
+                loadOrderHistory();
+            } else {
+                FlashMartStorage.showToast(result.message, 'error');
+            }
+        }
+
+        // Close payment modal
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.remove('show');
+        }
+
+        // Load order history
+        function loadOrderHistory() {
+            const orders = FlashMartStorage.getOrders();
+            const container = document.getElementById('order-history');
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📦</div>
+                        <div class="empty-state-text">No orders yet</div>
+                        <a href="products.html" class="btn btn-primary" style="margin-top: 20px;">Start Shopping</a>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="order-list">
+                    ${orders.map(order => `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <span class="order-id">Order #${order.id}</span>
+                                <span class="order-status ${order.status}">${order.status.charAt(0).toUpperCase() + order.status.slice(1)}</span>
+                            </div>
+                            <div class="order-items">
+                                ${order.items.map(item => `
+                                    <div class="order-item">
+                                        <span>${item.name} (×${item.quantity})</span>
+                                        <span>${FlashMartStorage.formatPrice(item.price * item.quantity)}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                                <div>
+                                    <div class="order-total">Total: ${FlashMartStorage.formatPrice(order.total)}</div>
+                                    <div style="font-size: 14px; color: var(--text-light); margin-top: 5px;">
+                                        Date: ${FlashMartStorage.formatDate(order.createdAt)}
+                                    </div>
+                                    <div style="font-size: 14px; color: var(--text-light);">
+                                        Payment: ${order.paymentMethod === 'direct' ? 'Direct Payment' : 'Monthly Billing'} 
+                                        ${order.paid ? '(Paid)' : '(Pending)'}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Close modal on outside click
+        document.getElementById('payment-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'payment-modal') {
+                closePaymentModal();
+            }
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadUserInfo();
+            loadMonthlyBilling();
+            loadOrderHistory();
+            FlashMartStorage.updateCartBadge();
+            FlashMartStorage.updateUserInfo();
+        });
+    </script>
+</body>
+</html>
+
+

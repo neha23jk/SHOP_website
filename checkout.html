@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - FlashMart</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                FlashMart
+            </a>
+            <div class="search-bar">
+                <input type="text" class="search-input" id="search-input" placeholder="Search for products...">
+                <button class="search-btn" onclick="handleSearch()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="header-actions">
+                <span id="user-info">Guest</span>
+                <a href="login.html" class="btn btn-secondary" id="login-btn">Login</a>
+                <button class="btn btn-secondary" id="logout-btn" onclick="handleLogout()" style="display: none;">Logout</button>
+                <a href="cart.html" class="btn btn-primary cart-btn">
+                    Cart
+                    <span class="cart-badge" id="cart-badge">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+        <div class="nav-container">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="products.html?category=groceries" class="nav-link">Groceries</a>
+            <a href="products.html?category=snacks" class="nav-link">Snacks</a>
+            <a href="products.html?category=personal-care" class="nav-link">Personal Care</a>
+            <a href="products.html?category=electronics" class="nav-link">Electronics</a>
+            <a href="products.html?category=stationery" class="nav-link">Stationery</a>
+            <a href="products.html?category=home-essentials" class="nav-link">Home Essentials</a>
+            <a href="products.html" class="nav-link">All Products</a>
+            <a href="account.html" class="nav-link">Account</a>
+        </div>
+    </nav>
+
+    <!-- Checkout Page -->
+    <div class="checkout-page">
+        <h2 class="section-title">Checkout</h2>
+
+        <!-- Order Summary -->
+        <div class="account-section" style="margin-bottom: 20px;">
+            <h3 style="margin-bottom: 15px;">Order Summary</h3>
+            <div id="order-summary">
+                <!-- Order items will be loaded here -->
+            </div>
+            <div class="summary-row" style="margin-top: 20px;">
+                <strong>Total</strong>
+                <strong class="summary-total" id="checkout-total">₹0.00</strong>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="payment-methods">
+            <h3 style="margin-bottom: 20px;">Select Payment Method</h3>
+            
+            <div class="payment-method" id="payment-direct" onclick="selectPayment('direct')">
+                <div class="payment-method-title">💳 Direct Payment</div>
+                <div class="payment-method-desc">Pay now with card. Order will be processed immediately.</div>
+            </div>
+
+            <div class="payment-method" id="payment-monthly" onclick="selectPayment('monthly')">
+                <div class="payment-method-title">📅 Monthly Billing</div>
+                <div class="payment-method-desc">Add to monthly account. Pay at month-end. (Requires login)</div>
+            </div>
+        </div>
+
+        <!-- Payment Button -->
+        <button class="btn btn-primary btn-full" id="pay-button" onclick="processPayment()" style="margin-top: 20px; padding: 15px; font-size: 18px;" disabled>
+            Complete Payment
+        </button>
+
+        <a href="cart.html" class="btn btn-secondary btn-full" style="margin-top: 10px; text-align: center;">Back to Cart</a>
+    </div>
+
+    <!-- Payment Modal -->
+    <div class="modal" id="payment-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Payment Processing</h3>
+                <button class="modal-close" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <div id="payment-modal-body">
+                <!-- Payment form will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="data/products.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        let selectedPaymentMethod = null;
+        let checkoutCart = [];
+
+        // Handle search
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.trim();
+            if (query) {
+                window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        // Search on Enter key
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+
+        // Handle logout
+        function handleLogout() {
+            FlashMartStorage.logoutUser();
+            FlashMartStorage.updateUserInfo();
+            FlashMartStorage.updateCartBadge();
+            window.location.href = 'index.html';
+        }
+
+        // Check for Buy Now product
+        function checkBuyNow() {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get('product');
+            const quantity = parseInt(params.get('quantity')) || 1;
+
+            if (productId) {
+                // Buy Now flow - create temporary cart
+                const product = FlashMartStorage.getProductById(productId);
+                if (product) {
+                    checkoutCart = [{
+                        productId: parseInt(productId),
+                        quantity: quantity
+                    }];
+                    loadOrderSummary();
+                    return;
+                }
+            }
+
+            // Regular cart checkout
+            checkoutCart = FlashMartStorage.getCart();
+            if (checkoutCart.length === 0) {
+                window.location.href = 'cart.html';
+                return;
+            }
+            loadOrderSummary();
+        }
+
+        // Load order summary
+        function loadOrderSummary() {
+            const container = document.getElementById('order-summary');
+            const total = checkoutCart.reduce((sum, item) => {
+                const product = FlashMartStorage.getProductById(item.productId);
+                return sum + (product ? product.price * item.quantity : 0);
+            }, 0);
+
+            container.innerHTML = checkoutCart.map(item => {
+                const product = FlashMartStorage.getProductById(item.productId);
+                if (!product) return '';
+
+                return `
+                    <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-color);">
+                        <div>
+                            <div style="font-weight: 500;">${product.name}</div>
+                            <div style="font-size: 14px; color: var(--text-light);">Qty: ${item.quantity} × ${FlashMartStorage.formatPrice(product.price)}</div>
+                        </div>
+                        <div style="font-weight: bold;">${FlashMartStorage.formatPrice(product.price * item.quantity)}</div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('checkout-total').textContent = FlashMartStorage.formatPrice(total);
+        }
+
+        // Select payment method
+        function selectPayment(method) {
+            selectedPaymentMethod = method;
+
+            // Update UI
+            document.querySelectorAll('.payment-method').forEach(el => {
+                el.classList.remove('selected');
+            });
+            document.getElementById(`payment-${method}`).classList.add('selected');
+
+            // Check if monthly billing requires login
+            if (method === 'monthly') {
+                const user = FlashMartStorage.getCurrentUser();
+                if (!user) {
+                    FlashMartStorage.showToast('Please login to use monthly billing', 'error');
+                    document.getElementById('pay-button').disabled = true;
+                    return;
+                }
+            }
+
+            document.getElementById('pay-button').disabled = false;
+        }
+
+        // Process payment
+        function processPayment() {
+            if (!selectedPaymentMethod) {
+                FlashMartStorage.showToast('Please select a payment method', 'error');
+                return;
+            }
+
+            if (selectedPaymentMethod === 'direct') {
+                showDirectPaymentModal();
+            } else if (selectedPaymentMethod === 'monthly') {
+                processMonthlyPayment();
+            }
+        }
+
+        // Show direct payment modal
+        function showDirectPaymentModal() {
+            const modal = document.getElementById('payment-modal');
+            const modalBody = document.getElementById('payment-modal-body');
+            const total = checkoutCart.reduce((sum, item) => {
+                const product = FlashMartStorage.getProductById(item.productId);
+                return sum + (product ? product.price * item.quantity : 0);
+            }, 0);
+
+            modalBody.innerHTML = `
+                <div style="margin-bottom: 20px;">
+                    <p>Total Amount: <strong>${FlashMartStorage.formatPrice(total)}</strong></p>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Card Number</label>
+                    <input type="text" class="form-input" placeholder="1234 5678 9012 3456" maxlength="19">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label class="form-label">Expiry</label>
+                        <input type="text" class="form-input" placeholder="MM/YY" maxlength="5">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CVV</label>
+                        <input type="text" class="form-input" placeholder="123" maxlength="3">
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-full" onclick="completeDirectPayment()" style="margin-top: 20px;">
+                    Pay ${FlashMartStorage.formatPrice(total)}
+                </button>
+            `;
+
+            modal.classList.add('show');
+        }
+
+        // Complete direct payment
+        function completeDirectPayment() {
+            // Simulate payment processing
+            setTimeout(() => {
+                // Create order
+                const order = FlashMartStorage.createOrder(checkoutCart, 'direct', true);
+                
+                closePaymentModal();
+                FlashMartStorage.showToast('Payment successful! Order placed.', 'success');
+                
+                // Redirect to account page after 2 seconds
+                setTimeout(() => {
+                    window.location.href = 'account.html';
+                }, 2000);
+            }, 1000);
+        }
+
+        // Process monthly payment
+        function processMonthlyPayment() {
+            const user = FlashMartStorage.getCurrentUser();
+            if (!user) {
+                FlashMartStorage.showToast('Please login to use monthly billing', 'error');
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Create order with monthly payment
+            const order = FlashMartStorage.createOrder(checkoutCart, 'monthly', false);
+            
+            FlashMartStorage.showToast('Order added to monthly account', 'success');
+            
+            // Redirect to account page after 2 seconds
+            setTimeout(() => {
+                window.location.href = 'account.html';
+            }, 2000);
+        }
+
+        // Close payment modal
+        function closePaymentModal() {
+            document.getElementById('payment-modal').classList.remove('show');
+        }
+
+        // Close modal on outside click
+        document.getElementById('payment-modal').addEventListener('click', (e) => {
+            if (e.target.id === 'payment-modal') {
+                closePaymentModal();
+            }
+        });
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            checkBuyNow();
+            FlashMartStorage.updateCartBadge();
+            FlashMartStorage.updateUserInfo();
+        });
+    </script>
+</body>
+</html>
+
+

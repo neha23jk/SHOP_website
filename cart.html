@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - FlashMart</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-container">
+            <a href="index.html" class="logo">
+                <svg class="logo-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                </svg>
+                FlashMart
+            </a>
+            <div class="search-bar">
+                <input type="text" class="search-input" id="search-input" placeholder="Search for products...">
+                <button class="search-btn" onclick="handleSearch()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
+                        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="header-actions">
+                <span id="user-info">Guest</span>
+                <a href="login.html" class="btn btn-secondary" id="login-btn">Login</a>
+                <button class="btn btn-secondary" id="logout-btn" onclick="handleLogout()" style="display: none;">Logout</button>
+                <a href="cart.html" class="btn btn-primary cart-btn">
+                    Cart
+                    <span class="cart-badge" id="cart-badge">0</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Menu -->
+    <nav class="nav-menu">
+        <div class="nav-container">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="products.html?category=groceries" class="nav-link">Groceries</a>
+            <a href="products.html?category=snacks" class="nav-link">Snacks</a>
+            <a href="products.html?category=personal-care" class="nav-link">Personal Care</a>
+            <a href="products.html?category=electronics" class="nav-link">Electronics</a>
+            <a href="products.html?category=stationery" class="nav-link">Stationery</a>
+            <a href="products.html?category=home-essentials" class="nav-link">Home Essentials</a>
+            <a href="products.html" class="nav-link">All Products</a>
+            <a href="account.html" class="nav-link">Account</a>
+        </div>
+    </nav>
+
+    <!-- Cart Page -->
+    <div class="cart-page">
+        <h2 class="section-title">Shopping Cart</h2>
+        
+        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 20px;" id="cart-layout">
+            <!-- Cart Items -->
+            <div class="cart-items" id="cart-items">
+                <!-- Cart items will be loaded here -->
+            </div>
+
+            <!-- Cart Summary -->
+            <div class="cart-summary" id="cart-summary">
+                <h3 style="margin-bottom: 20px; font-size: 20px;">Order Summary</h3>
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">₹0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Delivery Charges</span>
+                    <span style="color: var(--success-color);">FREE</span>
+                </div>
+                <div class="summary-row">
+                    <span>Estimated Delivery</span>
+                    <span>2-3 days</span>
+                </div>
+                <div class="summary-row">
+                    <strong>Total</strong>
+                    <strong class="summary-total" id="cart-total">₹0.00</strong>
+                </div>
+                <a href="checkout.html" class="btn btn-primary btn-full" style="margin-top: 20px; text-align: center;">Proceed to Checkout</a>
+                <a href="products.html" class="btn btn-secondary btn-full" style="text-align: center;">Continue Shopping</a>
+            </div>
+        </div>
+
+        <!-- Empty Cart State -->
+        <div class="empty-state hidden" id="empty-cart">
+            <div class="empty-state-icon">🛒</div>
+            <div class="empty-state-text">Your cart is empty</div>
+            <a href="products.html" class="btn btn-primary" style="margin-top: 20px;">Start Shopping</a>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="data/products.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        // Handle search
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.trim();
+            if (query) {
+                window.location.href = `products.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        // Search on Enter key
+        document.getElementById('search-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                handleSearch();
+            }
+        });
+
+        // Handle logout
+        function handleLogout() {
+            FlashMartStorage.logoutUser();
+            FlashMartStorage.updateUserInfo();
+            FlashMartStorage.updateCartBadge();
+            window.location.href = 'index.html';
+        }
+
+        // Load cart
+        function loadCart() {
+            const cart = FlashMartStorage.getCart();
+            const container = document.getElementById('cart-items');
+            const emptyState = document.getElementById('empty-cart');
+            const cartLayout = document.getElementById('cart-layout');
+            const cartSummary = document.getElementById('cart-summary');
+
+            if (cart.length === 0) {
+                container.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                if (cartLayout) cartLayout.style.display = 'none';
+                if (cartSummary) cartSummary.style.display = 'none';
+                updateTotals();
+                return;
+            }
+
+            container.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+            if (cartLayout) cartLayout.style.display = 'grid';
+            if (cartSummary) cartSummary.style.display = 'block';
+
+            container.innerHTML = cart.map(item => {
+                const product = FlashMartStorage.getProductById(item.productId);
+                if (!product) return '';
+
+                return `
+                    <div class="cart-item">
+                        <img src="${product.images[0]}" alt="${product.name}" class="cart-item-image">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">${product.name}</div>
+                            <div class="cart-item-price">${FlashMartStorage.formatPrice(product.price)}</div>
+                        </div>
+                        <div class="cart-item-actions">
+                            <button class="quantity-btn" onclick="updateQuantity(${product.id}, ${item.quantity - 1})">-</button>
+                            <input type="number" class="quantity-input" value="${item.quantity}" min="1" max="${product.stock}" onchange="updateQuantity(${product.id}, parseInt(this.value))" style="width: 60px;">
+                            <button class="quantity-btn" onclick="updateQuantity(${product.id}, ${item.quantity + 1})">+</button>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-weight: bold; font-size: 18px; color: var(--primary-color);">
+                                ${FlashMartStorage.formatPrice(product.price * item.quantity)}
+                            </div>
+                            <button class="btn-remove" onclick="removeItem(${product.id})" style="margin-top: 10px;">Remove</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            updateTotals();
+        }
+
+        // Update quantity
+        function updateQuantity(productId, quantity) {
+            if (quantity < 1) {
+                removeItem(productId);
+                return;
+            }
+
+            const result = FlashMartStorage.updateCartQuantity(productId, quantity);
+            if (result.success) {
+                loadCart();
+                FlashMartStorage.updateCartBadge();
+            } else {
+                FlashMartStorage.showToast(result.message, 'error');
+                loadCart(); // Reload to show correct quantities
+            }
+        }
+
+        // Remove item
+        function removeItem(productId) {
+            FlashMartStorage.removeFromCart(productId);
+            FlashMartStorage.showToast('Item removed from cart', 'success');
+            loadCart();
+            FlashMartStorage.updateCartBadge();
+        }
+
+        // Update totals
+        function updateTotals() {
+            const total = FlashMartStorage.getCartTotal();
+            document.getElementById('cart-subtotal').textContent = FlashMartStorage.formatPrice(total);
+            document.getElementById('cart-total').textContent = FlashMartStorage.formatPrice(total);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCart();
+            FlashMartStorage.updateCartBadge();
+            FlashMartStorage.updateUserInfo();
+        });
+    </script>
+</body>
+</html>
+
