@@ -1,7 +1,17 @@
-# College-Work
+# Web Development Final Project
+##
 ##
 
 # FlashMart - Fast Local Shopping Website
+
+## 👤 Student Information
+**Name:** Neha Chaudhary
+**College ID :** 2024KUEC2043  
+**Batch:** C2
+
+---
+
+# 📝 Project Description
 
 FlashMart is a fully functional e-commerce website built with pure HTML, CSS, and JavaScript. It simulates a local store similar to Blinkit or Flipkart Minutes, with all functionality working client-side using localStorage for data persistence.
 
@@ -66,22 +76,18 @@ flashmart/
     └── products.js     → Product data (30+ products)
 ```
 
-## Website Link (Live Demo):-
-- https://neha23jk.github.io/SHOP_website/
 
-## Test Account (Use this preconfigured account for testing):-
+---
+
+## 🔐 Login Details/Test Account (Use this preconfigured account for testing):-
+
 - Email: test@flashmart.com
 - Password: Password123
 
-## How to run Locally
+---
 
-1. Download or clone the project files
-2. Open `index.html` in your web browser
-3. That's it! The website will work immediately
+## 🚀 Deployment Link
+Live Project Link:  
+https://neha23jk.github.io/SHOP_website/
 
-##
-##
-
-### Submitted by: Neha Chaudhary
-### Student ID: 2024KUEC2043
-### Batch: C2
+---
