@@ -9,3 +9,7 @@
 ## Test Account (Use this preconfigured account for testing):-
 - Email: test@flashmart.com
 - Password: Password123
+
+- Submitted by: Neha Chaudhary
+- Student ID: 2024KUEC2043
+- Batch: C2
