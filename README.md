@@ -1,5 +1,4 @@
 # Web Development Final Project
-
 ---
 
 # FlashMart - Fast Local Shopping Website
