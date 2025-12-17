@@ -1,10 +1,5 @@
-// FlashMart Products Data
-// Contains 30+ products across multiple categories
-
 const productImage = (fileName) => `assets/Products/${fileName}`;
-
 const FLASHMART_PRODUCTS_VERSION = '2024-11-20-a';
-
 const FLASHMART_PRODUCTS = [
   // Groceries
   {
@@ -399,7 +394,6 @@ const FLASHMART_PRODUCTS = [
   }
 ];
 
-// Initialize products in localStorage if not already present
 if (typeof Storage !== 'undefined') {
   const storedVersion = localStorage.getItem('flashmart_products_version');
   if (!localStorage.getItem('flashmart_products') || storedVersion !== FLASHMART_PRODUCTS_VERSION) {
