@@ -1,11 +1,5 @@
-// FlashMart - Main Application JavaScript
-// Handles storage, cart management, authentication, and shared utilities
-
-// ============================================================================
-// STORAGE UTILITIES
-// ============================================================================
-
 const FlashMartStorage = {
+  
   // Get all products from localStorage
   getProducts() {
     const products = localStorage.getItem('flashmart_products');
@@ -34,11 +28,7 @@ const FlashMartStorage = {
     const products = this.getProducts();
     return category === 'all' ? products : products.filter(p => p.category === category);
   },
-
-  // ============================================================================
-  // USER MANAGEMENT
-  // ============================================================================
-
+  
   // Get all users
   getUsers() {
     const users = localStorage.getItem('flashmart_users');
@@ -69,7 +59,7 @@ const FlashMartStorage = {
     const newUser = {
       id: Date.now(),
       email,
-      password, // In production, hash this password
+      password, 
       name,
       createdAt: new Date().toISOString()
     };
@@ -99,11 +89,7 @@ const FlashMartStorage = {
     const user = this.getCurrentUser();
     return user ? user.id : 'guest';
   },
-
-  // ============================================================================
-  // CART MANAGEMENT
-  // ============================================================================
-
+  
   // Get cart for current user
   getCart() {
     const userId = this.getUserId();
@@ -205,10 +191,6 @@ const FlashMartStorage = {
     return cart.reduce((sum, item) => sum + item.quantity, 0);
   },
 
-  // ============================================================================
-  // ORDERS MANAGEMENT
-  // ============================================================================
-
   // Get orders for current user
   getOrders() {
     const userId = this.getUserId();
@@ -240,10 +222,10 @@ const FlashMartStorage = {
       paid,
       status: paid ? 'completed' : 'pending',
       createdAt: new Date().toISOString(),
-      estimatedDelivery: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString() // 2 days from now
+      estimatedDelivery: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString() 
     };
 
-    orders.unshift(order); // Add to beginning
+    orders.unshift(order); 
     localStorage.setItem(ordersKey, JSON.stringify(orders));
 
     // If monthly payment, add to monthly account
@@ -256,11 +238,7 @@ const FlashMartStorage = {
 
     return order;
   },
-
-  // ============================================================================
-  // MONTHLY BILLING
-  // ============================================================================
-
+  
   // Get monthly account for current user
   getMonthlyAccount() {
     const userId = this.getUserId();
@@ -315,10 +293,6 @@ const FlashMartStorage = {
 
     return { success: true, message: `Payment of ₹${paidAmount} processed`, amount: paidAmount };
   },
-
-  // ============================================================================
-  // UI UTILITIES
-  // ============================================================================
 
   // Show toast notification
   showToast(message, type = 'success') {
@@ -559,10 +533,6 @@ function initCustomCursor() {
     }
   });
 }
-
-// ============================================================================
-// INITIALIZATION
-// ============================================================================
 
 // Initialize demo user on first load
 document.addEventListener('DOMContentLoaded', () => {
