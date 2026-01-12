@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Header -->
+    
     <header class="header">
         <div class="header-container">
             <a href="index.html" class="logo">
@@ -36,7 +36,7 @@
         </div>
     </header>
 
-    <!-- Navigation Menu -->
+    
     <nav class="nav-menu">
         <div class="nav-container">
             <a href="index.html" class="nav-link">Home</a>
@@ -51,11 +51,11 @@
         </div>
     </nav>
 
-    <!-- Account Page -->
+   
     <div class="account-page">
         <h2 class="section-title">My Account</h2>
 
-        <!-- User Info Section -->
+        
         <div class="account-section">
             <h3 class="account-section-title">User Information</h3>
             <div id="user-info-section">
@@ -63,7 +63,7 @@
             </div>
         </div>
 
-        <!-- Monthly Billing Section -->
+        
         <div class="account-section" id="monthly-section">
             <h3 class="account-section-title">Monthly Billing</h3>
             <div id="monthly-billing">
@@ -71,7 +71,7 @@
             </div>
         </div>
 
-        <!-- Order History Section -->
+        
         <div class="account-section">
             <h3 class="account-section-title">Order History</h3>
             <div id="order-history">
@@ -80,7 +80,7 @@
         </div>
     </div>
 
-    <!-- Payment Modal -->
+    
     <div class="modal" id="payment-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -93,11 +93,11 @@
         </div>
     </div>
 
-    <!-- Scripts -->
+    
     <script src="data/products.js"></script>
     <script src="js/app.js"></script>
     <script>
-        // Handle search
+        
         function handleSearch() {
             const query = document.getElementById('search-input').value.trim();
             if (query) {
@@ -105,14 +105,14 @@
             }
         }
 
-        // Search on Enter key
+       
         document.getElementById('search-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 handleSearch();
             }
         });
 
-        // Handle logout
+        
         function handleLogout() {
             FlashMartStorage.logoutUser();
             FlashMartStorage.updateUserInfo();
@@ -120,7 +120,7 @@
             window.location.href = 'index.html';
         }
 
-        // Load user info
+       
         function loadUserInfo() {
             const user = FlashMartStorage.getCurrentUser();
             const container = document.getElementById('user-info-section');
@@ -142,7 +142,7 @@
             `;
         }
 
-        // Load monthly billing
+        
         function loadMonthlyBilling() {
             const user = FlashMartStorage.getCurrentUser();
             const container = document.getElementById('monthly-billing');
@@ -194,7 +194,7 @@
             `;
         }
 
-        // Show pay monthly modal
+        
         function showPayMonthlyModal() {
             const monthly = FlashMartStorage.getMonthlyAccount();
             const modal = document.getElementById('payment-modal');
@@ -226,7 +226,7 @@
             modal.classList.add('show');
         }
 
-        // Pay monthly balance
+        
         function payMonthlyBalance() {
             const result = FlashMartStorage.payMonthlyBalance();
             
@@ -240,12 +240,12 @@
             }
         }
 
-        // Close payment modal
+        
         function closePaymentModal() {
             document.getElementById('payment-modal').classList.remove('show');
         }
 
-        // Load order history
+       
         function loadOrderHistory() {
             const orders = FlashMartStorage.getOrders();
             const container = document.getElementById('order-history');
@@ -295,14 +295,14 @@
             `;
         }
 
-        // Close modal on outside click
+        
         document.getElementById('payment-modal').addEventListener('click', (e) => {
             if (e.target.id === 'payment-modal') {
                 closePaymentModal();
             }
         });
 
-        // Initialize page
+        
         document.addEventListener('DOMContentLoaded', () => {
             loadUserInfo();
             loadMonthlyBilling();
