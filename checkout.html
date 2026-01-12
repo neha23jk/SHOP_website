@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Header -->
+    
     <header class="header">
         <div class="header-container">
             <a href="index.html" class="logo">
@@ -36,7 +36,7 @@
         </div>
     </header>
 
-    <!-- Navigation Menu -->
+    
     <nav class="nav-menu">
         <div class="nav-container">
             <a href="index.html" class="nav-link">Home</a>
@@ -51,15 +51,15 @@
         </div>
     </nav>
 
-    <!-- Checkout Page -->
+
     <div class="checkout-page">
         <h2 class="section-title">Checkout</h2>
 
-        <!-- Order Summary -->
+        
         <div class="account-section" style="margin-bottom: 20px;">
             <h3 style="margin-bottom: 15px;">Order Summary</h3>
             <div id="order-summary">
-                <!-- Order items will be loaded here -->
+                
             </div>
             <div class="summary-row" style="margin-top: 20px;">
                 <strong>Total</strong>
@@ -67,7 +67,7 @@
             </div>
         </div>
 
-        <!-- Payment Methods -->
+        
         <div class="payment-methods">
             <h3 style="margin-bottom: 20px;">Select Payment Method</h3>
             
@@ -82,7 +82,7 @@
             </div>
         </div>
 
-        <!-- Payment Button -->
+        
         <button class="btn btn-primary btn-full" id="pay-button" onclick="processPayment()" style="margin-top: 20px; padding: 15px; font-size: 18px;" disabled>
             Complete Payment
         </button>
@@ -90,7 +90,7 @@
         <a href="cart.html" class="btn btn-secondary btn-full" style="margin-top: 10px; text-align: center;">Back to Cart</a>
     </div>
 
-    <!-- Payment Modal -->
+
     <div class="modal" id="payment-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -98,19 +98,19 @@
                 <button class="modal-close" onclick="closePaymentModal()">&times;</button>
             </div>
             <div id="payment-modal-body">
-                <!-- Payment form will be loaded here -->
+                
             </div>
         </div>
     </div>
 
-    <!-- Scripts -->
+
     <script src="data/products.js"></script>
     <script src="js/app.js"></script>
     <script>
         let selectedPaymentMethod = null;
         let checkoutCart = [];
 
-        // Handle search
+       
         function handleSearch() {
             const query = document.getElementById('search-input').value.trim();
             if (query) {
@@ -118,14 +118,14 @@
             }
         }
 
-        // Search on Enter key
+        
         document.getElementById('search-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 handleSearch();
             }
         });
 
-        // Handle logout
+        
         function handleLogout() {
             FlashMartStorage.logoutUser();
             FlashMartStorage.updateUserInfo();
@@ -133,14 +133,14 @@
             window.location.href = 'index.html';
         }
 
-        // Check for Buy Now product
+       
         function checkBuyNow() {
             const params = new URLSearchParams(window.location.search);
             const productId = params.get('product');
             const quantity = parseInt(params.get('quantity')) || 1;
 
             if (productId) {
-                // Buy Now flow - create temporary cart
+               
                 const product = FlashMartStorage.getProductById(productId);
                 if (product) {
                     checkoutCart = [{
@@ -152,7 +152,7 @@
                 }
             }
 
-            // Regular cart checkout
+           
             checkoutCart = FlashMartStorage.getCart();
             if (checkoutCart.length === 0) {
                 window.location.href = 'cart.html';
@@ -161,7 +161,7 @@
             loadOrderSummary();
         }
 
-        // Load order summary
+        
         function loadOrderSummary() {
             const container = document.getElementById('order-summary');
             const total = checkoutCart.reduce((sum, item) => {
@@ -187,17 +187,17 @@
             document.getElementById('checkout-total').textContent = FlashMartStorage.formatPrice(total);
         }
 
-        // Select payment method
+       
         function selectPayment(method) {
             selectedPaymentMethod = method;
 
-            // Update UI
+            
             document.querySelectorAll('.payment-method').forEach(el => {
                 el.classList.remove('selected');
             });
             document.getElementById(`payment-${method}`).classList.add('selected');
 
-            // Check if monthly billing requires login
+            
             if (method === 'monthly') {
                 const user = FlashMartStorage.getCurrentUser();
                 if (!user) {
@@ -210,7 +210,7 @@
             document.getElementById('pay-button').disabled = false;
         }
 
-        // Process payment
+        
         function processPayment() {
             if (!selectedPaymentMethod) {
                 FlashMartStorage.showToast('Please select a payment method', 'error');
@@ -224,7 +224,7 @@
             }
         }
 
-        // Show direct payment modal
+        
         function showDirectPaymentModal() {
             const modal = document.getElementById('payment-modal');
             const modalBody = document.getElementById('payment-modal-body');
@@ -259,24 +259,24 @@
             modal.classList.add('show');
         }
 
-        // Complete direct payment
+       
         function completeDirectPayment() {
-            // Simulate payment processing
+            
             setTimeout(() => {
-                // Create order
+                
                 const order = FlashMartStorage.createOrder(checkoutCart, 'direct', true);
                 
                 closePaymentModal();
                 FlashMartStorage.showToast('Payment successful! Order placed.', 'success');
                 
-                // Redirect to account page after 2 seconds
+                
                 setTimeout(() => {
                     window.location.href = 'account.html';
                 }, 2000);
             }, 1000);
         }
 
-        // Process monthly payment
+        
         function processMonthlyPayment() {
             const user = FlashMartStorage.getCurrentUser();
             if (!user) {
@@ -285,30 +285,30 @@
                 return;
             }
 
-            // Create order with monthly payment
+            
             const order = FlashMartStorage.createOrder(checkoutCart, 'monthly', false);
             
             FlashMartStorage.showToast('Order added to monthly account', 'success');
             
-            // Redirect to account page after 2 seconds
+            
             setTimeout(() => {
                 window.location.href = 'account.html';
             }, 2000);
         }
 
-        // Close payment modal
+        
         function closePaymentModal() {
             document.getElementById('payment-modal').classList.remove('show');
         }
 
-        // Close modal on outside click
+       
         document.getElementById('payment-modal').addEventListener('click', (e) => {
             if (e.target.id === 'payment-modal') {
                 closePaymentModal();
             }
         });
 
-        // Initialize page
+        
         document.addEventListener('DOMContentLoaded', () => {
             checkBuyNow();
             FlashMartStorage.updateCartBadge();
