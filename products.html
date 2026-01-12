@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Header -->
+   
     <header class="header">
         <div class="header-container">
             <a href="index.html" class="logo">
@@ -36,7 +36,7 @@
         </div>
     </header>
 
-    <!-- Navigation Menu -->
+  
     <nav class="nav-menu">
         <div class="nav-container">
             <a href="index.html" class="nav-link">Home</a>
@@ -51,11 +51,11 @@
         </div>
     </nav>
 
-    <!-- Products Section -->
+   
     <section class="products-section">
         <h2 class="section-title" id="page-title">All Products</h2>
         
-        <!-- Filters -->
+        
         <div class="filters-section">
             <div class="filter-group">
                 <label class="filter-label">Category:</label>
@@ -80,26 +80,26 @@
             </div>
         </div>
 
-        <!-- Products Grid -->
+        
         <div class="products-grid" id="products-grid">
-            <!-- Products will be loaded here -->
+            
         </div>
 
-        <!-- Empty State -->
+        
         <div class="empty-state hidden" id="empty-state">
             <div class="empty-state-icon">🔍</div>
             <div class="empty-state-text">No products found</div>
         </div>
     </section>
 
-    <!-- Scripts -->
+    
     <script src="data/products.js"></script>
     <script src="js/app.js"></script>
     <script>
         let allProducts = [];
         let filteredProducts = [];
 
-        // Handle search
+       
         function handleSearch() {
             const query = document.getElementById('search-input').value.trim();
             if (query) {
@@ -107,14 +107,14 @@
             }
         }
 
-        // Search on Enter key
+       
         document.getElementById('search-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 handleSearch();
             }
         });
 
-        // Handle logout
+     
         function handleLogout() {
             FlashMartStorage.logoutUser();
             FlashMartStorage.updateUserInfo();
@@ -122,7 +122,7 @@
             window.location.href = 'index.html';
         }
 
-        // Get URL parameters
+
         function getUrlParams() {
             const params = new URLSearchParams(window.location.search);
             return {
@@ -132,12 +132,12 @@
             };
         }
 
-        // Load products
+       
         function loadProducts() {
             const params = getUrlParams();
             allProducts = FlashMartStorage.getProducts();
 
-            // Apply search filter
+           
             if (params.search) {
                 allProducts = FlashMartStorage.searchProducts(params.search);
                 document.getElementById('page-title').textContent = `Search Results: "${params.search}"`;
@@ -146,7 +146,7 @@
                 document.getElementById('page-title').textContent = `${params.category.charAt(0).toUpperCase() + params.category.slice(1)}`;
             }
 
-            // Set category filter
+          
             document.getElementById('category-filter').value = params.category;
 
             filteredProducts = [...allProducts];
@@ -154,25 +154,25 @@
             renderProducts();
         }
 
-        // Apply filters
+       
         function applyFilters() {
             const category = document.getElementById('category-filter').value;
             const sort = document.getElementById('sort-filter').value;
 
-            // Update URL
+           
             const url = new URL(window.location);
             url.searchParams.set('category', category);
             url.searchParams.set('sort', sort);
             window.history.pushState({}, '', url);
 
-            // Filter by category
+            
             if (category === 'all') {
                 filteredProducts = FlashMartStorage.getProducts();
             } else {
                 filteredProducts = FlashMartStorage.getProductsByCategory(category);
             }
 
-            // Apply search if present
+           
             const search = getUrlParams().search;
             if (search) {
                 filteredProducts = FlashMartStorage.searchProducts(search);
@@ -182,7 +182,7 @@
             renderProducts();
         }
 
-        // Apply sorting
+       
         function applySorting() {
             const sort = document.getElementById('sort-filter')?.value || getUrlParams().sort;
 
@@ -197,12 +197,12 @@
                     filteredProducts.sort((a, b) => b.rating - a.rating);
                     break;
                 default:
-                    // Keep original order
+
                     break;
             }
         }
 
-        // Render products
+       
         function renderProducts() {
             const container = document.getElementById('products-grid');
             const emptyState = document.getElementById('empty-state');
@@ -240,7 +240,7 @@
             `).join('');
         }
 
-        // Add to cart function
+       
         function addToCart(productId, event) {
             const button = event ? event.target : null;
             const result = FlashMartStorage.addToCart(productId, 1);
@@ -255,33 +255,24 @@
             }
         }
 
-        // Initialize page
+       
         document.addEventListener('DOMContentLoaded', () => {
             loadProducts();
             FlashMartStorage.updateCartBadge();
             FlashMartStorage.updateUserInfo();
 
-            // Set sort filter from URL
+            
             const sort = getUrlParams().sort;
             if (sort && document.getElementById('sort-filter')) {
                 document.getElementById('sort-filter').value = sort;
             }
 
-            // Set search input value if coming from search
+            
             const params = getUrlParams();
             if (params.search) {
                 document.getElementById('search-input').value = params.search;
             }
 
-            // Real-time search with debouncing (optional - can be enabled)
-            // const debouncedSearch = FlashMartStorage.debounce((query) => {
-            //     if (query.trim()) {
-            //         window.location.href = `products.html?search=${encodeURIComponent(query)}`;
-            //     }
-            // }, 300);
-            // document.getElementById('search-input').addEventListener('input', (e) => {
-            //     debouncedSearch(e.target.value);
-            // });
         });
     </script>
 </body>
