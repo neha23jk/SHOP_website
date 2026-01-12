@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-    <!-- Header -->
+    
     <header class="header">
         <div class="header-container">
             <a href="index.html" class="logo">
@@ -36,7 +36,7 @@
         </div>
     </header>
 
-    <!-- Navigation Menu -->
+    
     <nav class="nav-menu">
         <div class="nav-container">
             <a href="index.html" class="nav-link">Home</a>
@@ -51,19 +51,19 @@
         </div>
     </nav>
 
-    <!-- Product Detail Section -->
+    
     <section class="product-detail" id="product-detail">
-        <!-- Product will be loaded here -->
+       
     </section>
 
-    <!-- Scripts -->
+    
     <script src="data/products.js"></script>
     <script src="js/app.js"></script>
     <script>
         let currentProduct = null;
         let quantity = 1;
 
-        // Handle search
+       
         function handleSearch() {
             const query = document.getElementById('search-input').value.trim();
             if (query) {
@@ -71,14 +71,14 @@
             }
         }
 
-        // Search on Enter key
+      
         document.getElementById('search-input').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 handleSearch();
             }
         });
 
-        // Handle logout
+        
         function handleLogout() {
             FlashMartStorage.logoutUser();
             FlashMartStorage.updateUserInfo();
@@ -86,13 +86,13 @@
             window.location.href = 'index.html';
         }
 
-        // Get product ID from URL
+        
         function getProductId() {
             const params = new URLSearchParams(window.location.search);
             return params.get('id');
         }
 
-        // Load product details
+      
         function loadProduct() {
             const productId = getProductId();
             if (!productId) {
@@ -109,7 +109,7 @@
             renderProduct();
         }
 
-        // Render product
+       
         function renderProduct() {
             const container = document.getElementById('product-detail');
             quantity = 1;
@@ -224,7 +224,7 @@
             }, 140);
         }
 
-        // Quantity controls
+       
         function decreaseQuantity() {
             if (quantity > 1) {
                 quantity--;
@@ -255,7 +255,7 @@
             input.value = quantity;
         }
 
-        // Add to cart
+      
         function addToCart(event) {
             const button = event ? event.target : null;
             const result = FlashMartStorage.addToCart(currentProduct.id, quantity);
@@ -270,9 +270,9 @@
             }
         }
 
-        // Buy now
+       
         function buyNow() {
-            // Validate quantity
+            
             if (quantity > currentProduct.stock) {
                 FlashMartStorage.showToast('Insufficient stock', 'error');
                 return;
@@ -281,11 +281,11 @@
                 FlashMartStorage.showToast('Please select a valid quantity', 'error');
                 return;
             }
-            // Redirect to checkout with product and quantity
+            
             window.location.href = `checkout.html?product=${currentProduct.id}&quantity=${quantity}`;
         }
 
-        // Initialize page
+       
         document.addEventListener('DOMContentLoaded', () => {
             loadProduct();
             FlashMartStorage.updateCartBadge();
